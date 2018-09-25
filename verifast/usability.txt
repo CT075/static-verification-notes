@@ -1,0 +1,53 @@
+
+- Working with arrays is nearly unbearable -- very difficult to express
+  ownership of specific array ranges with taking the entire array
+  - Makes verified sorting from a mostly solved problem into a nightmare
+
+  If any major potential for gains from inserting ?s, ownership predicates for
+  arrays would be a big one -- which ranges need to be owned by which loop
+  iterations, etc.
+
+- Data structures and pointers are actually comparatively quite pleasant
+  - Sharp edges are mostly in non-destructive field access i.e. getters. For
+    example, one attempt at Stack.len() accidentally threw away permission to
+    read and write the length field.
+
+- I didn't particularly understand the "precise" predicates of Verifast, but
+  from what little documentation I could find, it sounds like a "precise"
+  predicate is one that can be inferred to be on the heap when necessary and
+  consumed when not.
+  - The necessity of "open"/"close" ghost statements to add annotated chunks to
+    the virtual heap seems like a great target for ?s, but I'm not sure how
+    practical that is -- I found that I often needed specific predicates in
+    specific places in the codepath, so the programmer would need to be aware
+    that *something* is necessary at each point.
+      - In theory, I suppose we could have implicit ?s between every statement,
+        but that begins to sound computationally intractable.
+  - The documentation claims that precise predicates can eliminate the need
+    for the various open/close annotations in the data structure methods, but I
+    was unable to make this happen.
+
+- I like the idea of having a separate, functional-style language dedicated to
+  the logic, but it seemed simultaneously too close and too far from actual
+  Java. I think I would have preferred expressing fixpoints/lemmas (etc) in
+  a more ML-like syntax, with some separate construct for lifting Java fns
+  into the logic.
+  - Liquid Haskell does something like that with "reflect" annotations to lift
+    a function into refinement-type land, but I'm not sure how that would work
+    with an imperative language and a more complicated logic (either separated
+    or IDFs).
+
+- When proving lemmas, it's very difficult to express anything more than
+  "A implies B implies C implies postcondition". Having more proof combinators
+  would go a long way towards easing this.
+
+- I found myself most frustrated when trying to determine exactly when and
+  where I needed to insert ownership/pointer clauses, and when various things
+  were added to the virtual heap. I can attribute much of that to unfamiliarity
+  with separation logic in general, but that seems like a good place to put ?s.
+
+- Specifically an issue with Verifast is that there is little to no concrete
+  documentation, and the error messages are cryptic at best. I repeatedly ran
+  into an OCaml exception regarding a missing match clause, which I assume is
+  due to my using a nightly build instead of a stable.
+
